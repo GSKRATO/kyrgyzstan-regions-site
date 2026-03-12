@@ -1,0 +1,74 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f9f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?q=80&w=2000&auto=format&fit=crop') center/cover;
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+}
+
+main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.map-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.region-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.region-btn:hover {
+    background-color: #1b5e20;
+    transform: translateY(-2px);
+}
+
+.info-section {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-height: 200px;
+}
+
+.region-card img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: white;
+    margin-top: 40px;
+}
