@@ -1,52 +1,147 @@
+/* Базовые настройки */
 * {
     box-sizing: border-box;
-    margin: 0; padding: 0;
-    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body { background-color: #f4f9f4; color: #333; }
+body {
+    background-color: #f4f9f4;
+    color: #333;
+    line-height: 1.6;
+}
 
+/* Шапка сайта */
 header {
-    /* ТВОЯ СТАРАЯ КАРТИНКА */
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-                url('https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?q=80&w=2000&auto=format&fit=crop') center/cover;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?q=80&w=2000&auto=format&fit=crop') center/cover;
     color: white;
     text-align: center;
     padding: 100px 20px;
 }
 
+/* Основной контент */
+main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+/* Стили для интерактивной карты */
 .map-wrapper {
     position: relative;
     max-width: 800px;
     margin: 20px auto;
-    background: none; /* Убрал синий/серый фон */
 }
 
-.kg-map-image { width: 100%; opacity: 0.9; }
+.kg-map-image {
+    width: 100%;
+    height: auto;
+    opacity: 0.7;
+    border-radius: 8px; /* Немного скруглим углы самой карты */
+}
 
+/* Стили для красных точек (пинов) */
 .pin {
     position: absolute;
-    width: 20px; height: 20px;
+    width: 20px;
+    height: 20px;
     background-color: #e53935;
     border-radius: 50%;
+    transform: translate(-50%, -50%);
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    box-shadow: 0 0 0 rgba(229, 57, 53, 0.4);
+    animation: pulse 2s infinite;
+    transition: background-color 0.3s;
 }
 
 .pin span {
-    position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.8); color: white;
-    padding: 4px 10px; border-radius: 4px;
-    font-size: 13px; font-weight: bold;
-    white-space: nowrap;
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap; /* Чтобы названия не переносились на вторую строку */
+}
+
+.pin:hover {
+    background-color: #b71c1c;
+    z-index: 10;
+}
+
+/* Анимация пульсации для точек */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(229, 57, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+}
+
+/* Блок с информацией о регионе */
+.info-section {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-height: 200px;
+}
+
+.region-card h3 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 10px;
 }
 
 .region-card img {
-    width: 100%; max-height: 450px;
-    object-fit: cover; border-radius: 10px; margin: 15px 0;
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.ai-button {
-    background: #2e7d32; color: white; border: none;
-    padding: 12px 25px; border-radius: 5px; cursor: pointer;
+.region-desc {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ИИ И ОЗВУЧКИ --- */
+
+/* Контейнер для текста от нейросети */
+#ai-loading, #ai-text {
+    line-height: 1.5;
+}
+
+/* Кнопка остановки озвучки */
+#stop-btn {
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#stop-btn:hover {
+    background-color: #c82333 !important; /* Делаем кнопку темнее при наведении */
+}
+
+#stop-btn:active {
+    transform: scale(0.98); /* Эффект нажатия */
+}
+
+/* Подвал сайта */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: white;
+    margin-top: 40px;
 }
