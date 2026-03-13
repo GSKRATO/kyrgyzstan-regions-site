@@ -1,8 +1,8 @@
-const tokenPart1 = "hf_"; 
-const tokenPart2 = "ВАШИ_БУКВЫ_ТОКЕНА_ЗДЕСЬ"; // Вставьте сюда вторую часть вашего токена
+// Импортируем библиотеку Transformers.js напрямую через CDN
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
-// Склеиваем их обратно для работы нейросети
-const HUGGING_FACE_TOKEN = tokenPart1 + tokenPart2;
+// Настраиваем загрузку моделей напрямую с Hugging Face Hub (без серверов-посредников)
+env.allowLocalModels = false;
 
 const regionsData = {
     "issyk-kul": {
@@ -42,6 +42,9 @@ const regionsData = {
     }
 };
 
+// Глобальная переменная для хранения скачанной нейросети в памяти браузера
+let aiPipeline = null;
+
 document.querySelectorAll('.pin').forEach(pin => {
     pin.addEventListener('click', async (e) => {
         const regionKey = e.currentTarget.getAttribute('data-region');
@@ -51,7 +54,7 @@ document.querySelectorAll('.pin').forEach(pin => {
         if (data) {
             window.speechSynthesis.cancel();
 
-            // Отрисовка интерфейса
+            // Отрисовка базового интерфейса с индикатором загрузки
             infoContent.innerHTML = `
                 <div class="region-card">
                     <h3>${data.name}</h3>
@@ -59,8 +62,8 @@ document.querySelectorAll('.pin').forEach(pin => {
                     <p class="region-desc"><strong>О регионе:</strong> ${data.description}</p>
                     
                     <div style="margin-top: 20px; padding: 15px; background: #eef2f5; border-radius: 8px; border-left: 4px solid #0056b3;">
-                        <p id="ai-loading" style="color: #0056b3; font-style: italic;">✨ Нейросеть генерирует уникальный факт для туристов (может занять 10-15 секунд)...</p>
-                        <p id="ai-text" class="tourist-desc" style="display: none;"></p>
+                        <p id="ai-loading" style="color: #0056b3; font-weight: bold;">Подготовка искусственного интеллекта...</p>
+                        <p id="ai-text" class="tourist-desc" style="display: none; line-height: 1.6;"></p>
                         <button id="stop-btn" style="display: none; margin-top: 15px; padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Остановить озвучку</button>
                     </div>
                 </div>
@@ -68,55 +71,66 @@ document.querySelectorAll('.pin').forEach(pin => {
             
             document.getElementById('region-info').scrollIntoView({ behavior: 'smooth' });
 
-            try {
-                // Изменили модель на Qwen 2.5 (работает быстрее и стабильнее)
-                const prompt = `Напиши один короткий, интересный и уникальный факт для туристов про ${data.name} в Кыргызстане. Не повторяйся.`;
-                
-                const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${HUGGING_FACE_TOKEN}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        inputs: prompt,
-                        parameters: { 
-                            max_new_tokens: 150, 
-                            temperature: 0.9, // 0.9 обеспечит сильное разнообразие текста
-                            return_full_text: false // чтобы нейросеть не повторяла ваш вопрос
-                        } 
-                    })
-                });
+            const loadingText = document.getElementById('ai-loading');
+            const aiTextElement = document.getElementById('ai-text');
+            const stopBtn = document.getElementById('stop-btn');
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}. Возможно, бесплатная модель спит, попробуйте еще раз через минуту.`);
+            try {
+                // Если модель еще не скачана, загружаем её с отображением прогресса
+                if (!aiPipeline) {
+                    loadingText.innerText = "Первый запуск: Скачивание нейросети в браузер. Пожалуйста, подождите (около 350 МБ)...";
+                    
+                    aiPipeline = await pipeline('text-generation', 'Xenova/Qwen1.5-0.5B-Chat', {
+                        progress_callback: (progressData) => {
+                            if (progressData.status === 'downloading') {
+                                // Показываем проценты скачивания файлов
+                                const percent = Math.round((progressData.loaded / progressData.total) * 100) || 0;
+                                loadingText.innerText = `Скачивание файлов ИИ: ${percent}% (подождите, это нужно сделать только один раз)`;
+                            } else if (progressData.status === 'ready') {
+                                loadingText.innerText = "Распаковка модели...";
+                            }
+                        }
+                    });
                 }
 
-                const apiData = await response.json();
-                let generatedText = apiData[0].generated_text || "Текст не сгенерирован.";
+                loadingText.innerText = "✨ Нейросеть генерирует уникальный факт прямо на вашем устройстве...";
+
+                // Форматируем промпт специально для модели Qwen
+                const prompt = `<|im_start|>system\nТы туристический гид. Отвечай очень коротко, одним интересным предложением.<|im_end|>\n<|im_start|>user\nНапиши один короткий интересный факт про ${data.name} в Кыргызстане.<|im_end|>\n<|im_start|>assistant\n`;
+
+                // Запускаем генерацию прямо в браузере!
+                const result = await aiPipeline(prompt, {
+                    max_new_tokens: 60,
+                    temperature: 0.8, // Делает текст разным каждый раз
+                    repetition_penalty: 1.1,
+                    do_sample: true
+                });
+
+                // Очищаем результат от промпта
+                let generatedText = result[0].generated_text.replace(prompt, '').trim();
 
                 // Вывод готового текста
-                document.getElementById('ai-loading').style.display = "none";
-                const aiTextElement = document.getElementById('ai-text');
-                const stopBtn = document.getElementById('stop-btn');
-
-                aiTextElement.innerHTML = `<strong>Совет от ИИ:</strong> ${generatedText.trim()}`;
+                loadingText.style.display = "none";
+                aiTextElement.innerHTML = `<strong>Совет от локального ИИ:</strong> ${generatedText}`;
                 aiTextElement.style.display = "block";
                 stopBtn.style.display = "inline-block";
 
                 stopBtn.onclick = () => window.speechSynthesis.cancel();
 
-                speakText(generatedText.trim());
+                // Озвучка текста
+                speakText(generatedText);
 
             } catch (error) {
-                document.getElementById('ai-loading').style.display = "none";
-                document.getElementById('ai-text').style.display = "block";
-                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Сбой связи с сервером (Failed to fetch). Если вы используете VPN или AdBlock, попробуйте отключить их. Либо сервер загружается, нажмите на регион еще раз!</span>`;
+                loadingText.style.display = "none";
+                aiTextElement.style.display = "block";
+                aiTextElement.innerHTML = `<span style="color:red;">Ошибка локального ИИ: ${error.message}</span>`;
+                console.error(error);
             }
         }
     });
 });
 
+// Функция озвучки
 function speakText(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ru-RU'; 
