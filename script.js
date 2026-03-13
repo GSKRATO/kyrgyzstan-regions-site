@@ -1,49 +1,43 @@
-// Импортируем библиотеку Transformers.js напрямую через CDN
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+// БОЛЬШЕ НИКАКИХ ТОКЕНОВ! ВЕСЬ КОД ДЛЯ НИХ УДАЛЕН.
 
-// Настраиваем загрузку моделей напрямую с Hugging Face Hub (без серверов-посредников)
-env.allowLocalModels = false;
-
+// База данных ваших регионов с полным текстом
 const regionsData = {
     "issyk-kul": {
         name: "Иссык-Кульская область",
-        description: "Иссык-Кульская область — это настоящая жемчужина и туристическое сердце Кыргызстана. Главным достоянием региона является величественное высокогорное озеро Иссык-Куль...",
+        description: "Иссык-Кульская область — это туристическая жемчужина Кыргызстана, известная на весь мир своим незамерзающим высокогорным озером Иссык-Куль. Озеро окружено заснеженными хребтами Тянь-Шаня, создавая уникальный микроклимат, сочетающий горную свежесть и морской бриз. Регион славится песчаными пляжами, горячими минеральными источниками и живописными ущельями.",
         image: "issyk-kul.jpg"
     },
     "chuy": {
         name: "Чуйская область",
-        description: "Чуйская область является самым развитым, экономически активным и густонаселенным регионом страны. Именно здесь расположена столица государства — город Бишкек.",
+        description: "Чуйская область — это самый экономически развитый и густонаселенный регион страны, расположенный в плодородной долине у подножия Кыргызского хребта. Именно здесь находится столица государства — динамичный город Бишкек. Область богата историческими памятниками, включая знаменитую башню Бурана на месте древнего города Баласагун.",
         image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop"
     },
     "osh": {
         name: "Ошская область",
-        description: "Ошская область — это колоритный южный регион Кыргызстана с уникальной атмосферой и многовековой историей. Столица области, город Ош, считается одним из древнейших городов Центральной Азии.",
+        description: "Ошская область — колоритный южный регион с древнейшей историей и уникальной культурой. Его центр, город Ош, которому более 3000 лет, называют «Южной столицей». Главная достопримечательность — священная гора Сулайман-Тоо, возвышающаяся прямо в центре города. Регион славится своим гостеприимством и шумными восточными базарами.",
         image: "osh.jpg"
     },
     "naryn": {
         name: "Нарынская область",
-        description: "Нарынская область — это самый крупный, высокогорный и суровый регион Кыргызстана, который часто называют «сердцем Тянь-Шаня». Это край настоящих кочевников.",
+        description: "Нарынская область — это самый высокогорный, суровый и малонаселенный регион, который часто называют «сердцем Тянь-Шаня». Это край нетронутой дикой природы, величественных скал и бескрайних пастбищ (джайлоо), где до сих пор сильны традиции кочевников. Здесь находятся озеро Сон-Куль и караван-сарай Таш-Рабат.",
         image: "naryn.jpg"
     },
     "jalal-abad": {
         name: "Джалал-Абадская область",
-        description: "Джалал-Абадская область удивительным образом сочетает в себе скалистые ущелья, зеленые долины и богатейшие лесные массивы. Здесь произрастают реликтовые ореховые леса.",
+        description: "Джалал-Абадская область отличается мягким климатом и невероятно разнообразной природой: от засушливых предгорий до пышных оазисов. Этот регион знаменит на весь мир своими уникальными реликтовыми орехово-плодовыми лесами Арсланбоб, которые являются крупнейшими на планете.",
         image: "jalal-abad.jpg"
     },
     "talas": {
         name: "Таласская область",
-        description: "Таласская область — это небольшой, но исторически крайне значимый регион. Эта земля неразрывно связана с именем легендарного кыргызского богатыря Манаса.",
+        description: "Таласская область — это небольшой, изолированный горами регион на северо-западе страны, который играет огромную роль в духовной культуре народа. Эта земля считается родиной легендарного богатыря Манаса, героя главного кыргызского эпоса. Здесь расположен национальный комплекс «Манас Ордо».",
         image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop"
     },
     "batken": {
         name: "Баткенская область",
-        description: "Баткенская область — это самый молодой, отдаленный и загадочный регион Кыргызстана. Этот край знаменит на всю Центральную Азию своими потрясающе сладкими абрикосами.",
+        description: "Баткенская область — самый молодой и отдаленный регион на юго-западе Кыргызстана, известный своими контрастными пейзажами и скалистыми горами. Этот край славится на всю Центральную Азию своими невероятно сладкими абрикосами (урюком). Также здесь растет редчайший эндемичный цветок Айгуль.",
         image: "batken.jpg"
     }
 };
-
-// Глобальная переменная для хранения скачанной нейросети в памяти браузера
-let aiPipeline = null;
 
 document.querySelectorAll('.pin').forEach(pin => {
     pin.addEventListener('click', async (e) => {
@@ -54,94 +48,73 @@ document.querySelectorAll('.pin').forEach(pin => {
         if (data) {
             window.speechSynthesis.cancel();
 
-            // Отрисовка базового интерфейса с индикатором загрузки
+            // Отрисовка красивого интерфейса
             infoContent.innerHTML = `
                 <div class="region-card">
                     <h3>${data.name}</h3>
-                    <img src="${data.image}" alt="Фотография: ${data.name}" style="margin: 15px 0; max-width: 100%; border-radius: 8px;">
-                    <p class="region-desc"><strong>О регионе:</strong> ${data.description}</p>
+                    <img src="${data.image}" alt="Фотография: ${data.name}" style="margin: 15px 0; max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <p class="region-desc" style="font-size: 1.1em; line-height: 1.6;">${data.description}</p>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: #eef2f5; border-radius: 8px; border-left: 4px solid #0056b3;">
-                        <p id="ai-loading" style="color: #0056b3; font-weight: bold;">Подготовка искусственного интеллекта...</p>
-                        <p id="ai-text" class="tourist-desc" style="display: none; line-height: 1.6;"></p>
-                        <button id="stop-btn" style="display: none; margin-top: 15px; padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Остановить озвучку</button>
+                    <div style="margin-top: 25px; padding: 20px; background: #f0f7ff; border-radius: 12px; border-left: 5px solid #0056b3; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <p id="ai-loading" style="color: #0056b3; font-weight: bold;">
+                            ✨ Связь с ИИ... Генерируем уникальный совет (обычно занимает 3-5 секунд)...
+                        </p>
+                        <p id="ai-text" class="tourist-desc" style="display: none; font-size: 1.1em; line-height: 1.6; color: #2c3e50;"></p>
+                        <button id="stop-btn" style="display: none; margin-top: 15px; padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Остановить озвучку</button>
                     </div>
                 </div>
             `;
             
-            document.getElementById('region-info').scrollIntoView({ behavior: 'smooth' });
-
-            const loadingText = document.getElementById('ai-loading');
-            const aiTextElement = document.getElementById('ai-text');
-            const stopBtn = document.getElementById('stop-btn');
+            document.getElementById('region-info').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             try {
-                // Если модель еще не скачана, загружаем её с отображением прогресса
-                if (!aiPipeline) {
-                    loadingText.innerText = "Первый запуск: Скачивание нейросети в браузер. Пожалуйста, подождите (около 350 МБ)...";
-                    
-                    aiPipeline = await pipeline('text-generation', 'Xenova/Qwen1.5-0.5B-Chat', {
-                        progress_callback: (progressData) => {
-                            if (progressData.status === 'downloading') {
-                                // Показываем проценты скачивания файлов
-                                const percent = Math.round((progressData.loaded / progressData.total) * 100) || 0;
-                                loadingText.innerText = `Скачивание файлов ИИ: ${percent}% (подождите, это нужно сделать только один раз)`;
-                            } else if (progressData.status === 'ready') {
-                                loadingText.innerText = "Распаковка модели...";
-                            }
-                        }
-                    });
+                // Промпт для ИИ
+                const prompt = `Ты гид по Кыргызстану. Напиши ОДИН короткий, интересный и уникальный факт для туристов про ${data.name}. Не пиши ничего лишнего, только сам факт на русском языке.`;
+                
+                // НОВЫЙ СПОСОБ: Открытый API Pollinations (без токенов, без сложного JSON)
+                const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
+
+                if (!response.ok) {
+                    throw new Error("Проблема с сетью при обращении к ИИ.");
                 }
 
-                loadingText.innerText = "✨ Нейросеть генерирует уникальный факт прямо на вашем устройстве...";
+                // Pollinations возвращает сразу готовый текст, нам даже не нужно его очищать!
+                const generatedText = await response.text();
 
-                // Форматируем промпт специально для модели Qwen
-                const prompt = `<|im_start|>system\nТы туристический гид. Отвечай очень коротко, одним интересным предложением.<|im_end|>\n<|im_start|>user\nНапиши один короткий интересный факт про ${data.name} в Кыргызстане.<|im_end|>\n<|im_start|>assistant\n`;
+                // Выводим на экран
+                document.getElementById('ai-loading').style.display = "none";
+                const aiTextElement = document.getElementById('ai-text');
+                const stopBtn = document.getElementById('stop-btn');
 
-                // Запускаем генерацию прямо в браузере!
-                const result = await aiPipeline(prompt, {
-                    max_new_tokens: 60,
-                    temperature: 0.8, // Делает текст разным каждый раз
-                    repetition_penalty: 1.1,
-                    do_sample: true
-                });
-
-                // Очищаем результат от промпта
-                let generatedText = result[0].generated_text.replace(prompt, '').trim();
-
-                // Вывод готового текста
-                loadingText.style.display = "none";
-                aiTextElement.innerHTML = `<strong>Совет от локального ИИ:</strong> ${generatedText}`;
+                aiTextElement.innerHTML = `<strong>Совет туристам от ИИ:</strong> ${generatedText}`;
                 aiTextElement.style.display = "block";
                 stopBtn.style.display = "inline-block";
 
                 stopBtn.onclick = () => window.speechSynthesis.cancel();
 
-                // Озвучка текста
+                // Читаем вслух
                 speakText(generatedText);
 
             } catch (error) {
-                loadingText.style.display = "none";
-                aiTextElement.style.display = "block";
-                aiTextElement.innerHTML = `<span style="color:red;">Ошибка локального ИИ: ${error.message}</span>`;
-                console.error(error);
+                document.getElementById('ai-loading').style.display = "none";
+                document.getElementById('ai-text').style.display = "block";
+                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Не удалось загрузить совет от ИИ. Проверьте подключение к интернету.</span>`;
             }
         }
     });
 });
 
-// Функция озвучки
+// Защита от бага Windows (Cortana)
 function speakText(text) {
+    if (!window.speechSynthesis) return;
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ru-RU'; 
-    utterance.rate = 1.0;     
     
-    const voices = window.speechSynthesis.getVoices();
-    const ruVoice = voices.find(voice => voice.lang.includes('ru') && !voice.name.toLowerCase().includes('cortana'));
-    
-    if (ruVoice) {
-        utterance.voice = ruVoice;
-    }
+    let voices = window.speechSynthesis.getVoices();
+    let targetVoice = voices.find(v => v.lang.includes('ru') && !v.name.toLowerCase().includes('cortana'));
+
+    if (targetVoice) utterance.voice = targetVoice;
     
     window.speechSynthesis.speak(utterance);
 }
