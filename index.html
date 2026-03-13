@@ -19,7 +19,7 @@
             <h2>Интерактивная карта</h2>
             <p>Нажмите на красную точку на карте, чтобы узнать о регионе больше.</p>
             
-            <div class="map-wrapper" style="background-color: #e2e8f0; border-radius: 8px;">
+            <div class="map-wrapper">
                 <img src="map.png" alt="Карта Кыргызстана" class="kg-map-image">
                 
                 <div class="pin" style="top: 22%; left: 55%;" data-region="chuy"><span>Чуй</span></div>
@@ -37,8 +37,14 @@
             <div id="info-content">
                 <p>Выберите область на карте выше, чтобы увидеть фотографии и описание.</p>
             </div>
+            <div id="audio-controls" style="display: none; margin-top: 20px;">
+                <button id="btn-speak" class="ai-button">🔈 Прослушать описание</button>
+                <span id="ai-status"></span>
+            </div>
         </section>
     </main>
+
+    <audio id="tts-player"></audio>
 
     <footer>
         <p>© 2026 Проект о Кыргызстане. Создано с любовью к родине.</p>
