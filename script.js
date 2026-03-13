@@ -75,7 +75,7 @@ document.querySelectorAll('.pin').forEach(pin => {
                 const randomSeed = Math.floor(Math.random() * 1000000);
                 
                 // Обращение к открытому ИИ Pollinations с добавлением случайного числа
-                const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt) + '?seed=' + randomSeed);
+                const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt) + '?model=openai&seed=' + randomSeed);
 
                 if (!response.ok) {
                     throw new Error("Проблема с сетью при обращении к ИИ.");
@@ -143,3 +143,4 @@ function speakText(text) {
 
 // Подгружаем голоса асинхронно
 window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
