@@ -1,4 +1,4 @@
-// БОЛЬШЕ НИКАКИХ ТОКЕНОВ! ВЕСЬ КОД ДЛЯ НИХ УДАЛЕН.
+// БОЛЬШЕ НИКАКИХ ТОКЕНОВ И ПАРОЛЕЙ! ВЕСЬ КОД ДЛЯ НИХ УДАЛЕН.
 
 // База данных ваших регионов с полным текстом
 const regionsData = {
@@ -46,9 +46,10 @@ document.querySelectorAll('.pin').forEach(pin => {
         const infoContent = document.getElementById('info-content');
 
         if (data) {
+            // Останавливаем старую озвучку при новом клике
             window.speechSynthesis.cancel();
 
-            // Отрисовка красивого интерфейса
+            // Отрисовка интерфейса
             infoContent.innerHTML = `
                 <div class="region-card">
                     <h3>${data.name}</h3>
@@ -56,67 +57,78 @@ document.querySelectorAll('.pin').forEach(pin => {
                     <p class="region-desc" style="font-size: 1.1em; line-height: 1.6;">${data.description}</p>
                     
                     <div style="margin-top: 25px; padding: 20px; background: #f0f7ff; border-radius: 12px; border-left: 5px solid #0056b3; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <p id="ai-loading" style="color: #0056b3; font-weight: bold;">
-                            ✨ Связь с ИИ... Генерируем уникальный совет (обычно занимает 3-5 секунд)...
+                        <p id="ai-loading" style="color: #0056b3; font-weight: bold; display: flex; align-items: center;">
+                            <span style="margin-right: 10px; font-size: 1.5em;">✨</span> ИИ генерирует подробный рассказ (3-5 предложений)...
                         </p>
                         <p id="ai-text" class="tourist-desc" style="display: none; font-size: 1.1em; line-height: 1.6; color: #2c3e50;"></p>
-                        <button id="stop-btn" style="display: none; margin-top: 15px; padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Остановить озвучку</button>
+                        <button id="stop-btn" style="display: none; margin-top: 15px; padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s;">Остановить озвучку</button>
                     </div>
                 </div>
             `;
             
+            // Плавная прокрутка
             document.getElementById('region-info').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             try {
-                // Промпт для ИИ
-                const prompt = `Ты гид по Кыргызстану. Напиши ОДИН короткий, интересный и уникальный факт для туристов про ${data.name}. Не пиши ничего лишнего, только сам факт на русском языке.`;
+                // Промпт для ИИ с запросом на 3-5 предложений (БЕЗ ТОКЕНОВ)
+                const prompt = `Ты профессиональный гид по Кыргызстану. Расскажи интересный, захватывающий и малоизвестный факт или легенду для туристов про ${data.name}. Текст должен состоять ровно из 3-5 предложений. Пиши только на русском языке, без приветствий.`;
                 
-                // НОВЫЙ СПОСОБ: Открытый API Pollinations (без токенов, без сложного JSON)
+                // Обращение к открытому ИИ Pollinations
                 const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
 
                 if (!response.ok) {
                     throw new Error("Проблема с сетью при обращении к ИИ.");
                 }
 
-                // Pollinations возвращает сразу готовый текст, нам даже не нужно его очищать!
+                // Получаем готовый текст
                 const generatedText = await response.text();
 
-                // Выводим на экран
+                // Выводим текст на экран
                 document.getElementById('ai-loading').style.display = "none";
                 const aiTextElement = document.getElementById('ai-text');
                 const stopBtn = document.getElementById('stop-btn');
 
-                aiTextElement.innerHTML = `<strong>Совет туристам от ИИ:</strong> ${generatedText}`;
+                aiTextElement.innerHTML = `<strong>Подробности от ИИ-гида:</strong> <br><br> ${generatedText}`;
                 aiTextElement.style.display = "block";
                 stopBtn.style.display = "inline-block";
 
+                // Функция для кнопки остановки
                 stopBtn.onclick = () => window.speechSynthesis.cancel();
 
-                // Читаем вслух
+                // Запуск озвучки (встроенными голосами устройства)
                 speakText(generatedText);
 
             } catch (error) {
                 document.getElementById('ai-loading').style.display = "none";
                 document.getElementById('ai-text').style.display = "block";
-                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Не удалось загрузить совет от ИИ. Проверьте подключение к интернету.</span>`;
+                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Не удалось загрузить рассказ от ИИ. Проверьте подключение к интернету.</span>`;
+                console.error("AI Error:", error);
             }
         }
     });
 });
 
-// Защита от бага Windows (Cortana)
+// Улучшенная функция озвучки
 function speakText(text) {
     if (!window.speechSynthesis) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ru-RU'; 
-    
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    // Ищем нормальный русский голос (исключая системную Cortana)
     let voices = window.speechSynthesis.getVoices();
     let targetVoice = voices.find(v => v.lang.includes('ru') && !v.name.toLowerCase().includes('cortana'));
 
-    if (targetVoice) utterance.voice = targetVoice;
+    if (targetVoice) {
+        utterance.voice = targetVoice;
+    }
     
     window.speechSynthesis.speak(utterance);
 }
 
-window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+// Подгружаем голоса асинхронно
+window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+};
