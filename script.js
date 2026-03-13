@@ -1,5 +1,5 @@
 // 1. ВСТАВЬТЕ СВОЙ ТОКЕН ТУТ (в кавычках)
-const HF_TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; 
+const HF_TOKEN = "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"; 
 
 const regionsData = {
     "issyk-kul": {
@@ -111,3 +111,4 @@ document.querySelectorAll('.pin').forEach(pin => {
 btnSpeak.addEventListener('click', () => {
     if (currentText) speak(currentText);
 });
+
