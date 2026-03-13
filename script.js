@@ -96,7 +96,38 @@ document.querySelectorAll('.pin').forEach(pin => {
                 stopBtn.onclick = () => window.speechSynthesis.cancel();
 
                 // Запуск озвучки (встроенными голосами устройства)
-                speakText(generatedText);
+                // Улучшенная функция: охота за "живыми" голосами
+function speakText(text) {
+    if (!window.speechSynthesis) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ru-RU'; 
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    let voices = window.speechSynthesis.getVoices();
+    let targetVoice = null;
+
+    // Шаг 1: Ищем самые качественные нейронные голоса (обычно есть в Edge)
+    targetVoice = voices.find(v => v.lang.includes('ru') && (v.name.includes('Natural') || v.name.includes('Online')));
+
+    // Шаг 2: Если их нет, ищем хорошие голоса от Google (на смартфонах Android и в Chrome)
+    if (!targetVoice) {
+        targetVoice = voices.find(v => v.lang.includes('ru') && v.name.includes('Google'));
+    }
+
+    // Шаг 3: Если и их нет, берем любой русский голос, кроме сломанной Cortana
+    if (!targetVoice) {
+        targetVoice = voices.find(v => v.lang.includes('ru') && !v.name.toLowerCase().includes('cortana'));
+    }
+
+    if (targetVoice) {
+        utterance.voice = targetVoice;
+        console.log("Выбран улучшенный голос: ", targetVoice.name);
+    }
+    
+    window.speechSynthesis.speak(utterance);
+}
 
             } catch (error) {
                 document.getElementById('ai-loading').style.display = "none";
@@ -132,3 +163,4 @@ function speakText(text) {
 window.speechSynthesis.onvoiceschanged = () => {
     window.speechSynthesis.getVoices();
 };
+
