@@ -50,17 +50,23 @@ document.querySelectorAll('.pin').forEach(pin => {
         const infoContent = document.getElementById('info-content');
 
         if (data) {
+            // Здесь мы поменяли порядок: сначала заголовок <h3>, затем картинка <img>, и только потом тексты <p>
             infoContent.innerHTML = `
                 <div class="region-card">
                     <h3>${data.name}</h3>
+                    
+                    <img src="${data.image}" alt="Фотография: ${data.name}" style="margin: 15px 0;">
+                    
                     <p class="region-desc"><strong>О регионе:</strong> ${data.description}</p>
                     <p class="tourist-desc"><strong>Для туристов:</strong> ${data.touristInfo}</p>
-                    <img src="${data.image}" alt="Фотография: ${data.name}">
                 </div>
             `;
             
+            // Плавная прокрутка к блоку с информацией
             document.getElementById('region-info').scrollIntoView({ behavior: 'smooth' });
         }
     });
 });
+
+
 
