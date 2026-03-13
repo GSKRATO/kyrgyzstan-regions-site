@@ -1,13 +1,8 @@
-// ВСТАВЬТЕ СЮДА ВАШ ТОКЕН HUGGING FACE
-// Разделяем токен на две части, чтобы GitHub не ругался на безопасность
 const tokenPart1 = "hf_"; 
 const tokenPart2 = "PixSmyqZyetFIDfEYBuAuedqrnzCiaPZmD";
 
 // Склеиваем их обратно для работы нейросети
 const HUGGING_FACE_TOKEN = tokenPart1 + tokenPart2;
-
-// Дальше идет ваш список регионов без изменений...
-// ... и так далее
 
 const regionsData = {
     "issyk-kul": {
@@ -119,6 +114,32 @@ document.querySelectorAll('.pin').forEach(pin => {
                 speakText(generatedText.trim());
 
             } catch (error) {
+                // ИСПРАВЛЕННЫЙ И ЗАКРЫТЫЙ БЛОК ОШИБКИ
                 document.getElementById('ai-loading').style.display = "none";
                 document.getElementById('ai-text').style.display = "block";
-                document.getElementById('ai-text').innerHTML = `
+                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Ошибка ИИ: ${error.message}</span>`;
+            }
+        } // Закрываем if (data)
+    }); // Закрываем addEventListener
+}); // Закрываем forEach
+
+// ВАЖНАЯ ФУНКЦИЯ ОЗВУЧКИ, КОТОРОЙ ВАМ НЕ ХВАТАЛО
+function speakText(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ru-RU'; // Указываем русский язык
+    utterance.rate = 1.0;     // Скорость чтения
+    
+    // Защита от открытия Cortana в Windows
+    const voices = window.speechSynthesis.getVoices();
+    const ruVoice = voices.find(voice => voice.lang.includes('ru') && !voice.name.toLowerCase().includes('cortana'));
+    
+    if (ruVoice) {
+        utterance.voice = ruVoice;
+    }
+    
+    // Запуск озвучки
+    window.speechSynthesis.speak(utterance);
+}
+
+// Загружаем голоса заранее для браузера
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
