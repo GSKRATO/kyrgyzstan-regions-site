@@ -3,53 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Откройте для себя Кыргызстан</title>
+    <title>Кыргызстан — Голос ИИ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <div class="header-content">
-            <h1>Сердце Центральной Азии — Кыргызстан</h1>
-            <p>Исследуйте уникальные регионы нашей страны, их природу и культуру.</p>
+            <h1>Исследуй Кыргызстан</h1>
+            <p>Нажмите на регион, и ИИ расскажет о нем голосом Kani TTS</p>
         </div>
     </header>
 
     <main>
-        <section class="map-section">
-            <h2>Интерактивная карта</h2>
-            <p>Нажмите на красную точку на карте, чтобы узнать о регионе больше.</p>
-            
-            <div class="map-wrapper">
-                <img src="map.png" alt="Карта Кыргызстана" class="kg-map-image">
-                
-                <div class="pin" style="top: 22%; left: 55%;" data-region="chuy"><span>Чуй</span></div>
-                <div class="pin" style="top: 32%; left: 82%;" data-region="issyk-kul"><span>Иссык-Куль</span></div>
-                <div class="pin" style="top: 28%; left: 32%;" data-region="talas"><span>Талас</span></div>
-                <div class="pin" style="top: 52%; left: 62%;" data-region="naryn"><span>Нарын</span></div>
-                <div class="pin" style="top: 45%; left: 35%;" data-region="jalal-abad"><span>Джалал-Абад</span></div>
-                <div class="pin" style="top: 68%; left: 30%;" data-region="osh"><span>Ош</span></div>
-                <div class="pin" style="top: 78%; left: 16%;" data-region="batken"><span>Баткен</span></div>
-            </div>
-        </section>
+        <div class="map-wrapper">
+            <img src="map.png" alt="Карта Кыргызстана" class="kg-map-image">
+            <div class="pin" style="top: 22%; left: 55%;" data-region="chuy"><span>Чуй</span></div>
+            <div class="pin" style="top: 32%; left: 82%;" data-region="issyk-kul"><span>Иссык-Куль</span></div>
+            <div class="pin" style="top: 28%; left: 32%;" data-region="talas"><span>Талас</span></div>
+            <div class="pin" style="top: 52%; left: 62%;" data-region="naryn"><span>Нарын</span></div>
+            <div class="pin" style="top: 45%; left: 35%;" data-region="jalal-abad"><span>Джалал-Абад</span></div>
+            <div class="pin" style="top: 68%; left: 30%;" data-region="osh"><span>Ош</span></div>
+            <div class="pin" style="top: 78%; left: 16%;" data-region="batken"><span>Баткен</span></div>
+        </div>
 
         <section class="info-section" id="region-info">
-            <h2>Информация о регионе</h2>
             <div id="info-content">
-                <p>Выберите область на карте выше, чтобы увидеть фотографии и описание.</p>
+                <h2>Выберите регион</h2>
             </div>
-            <div id="audio-controls" style="display: none; margin-top: 20px;">
-                <button id="btn-speak" class="ai-button">🔈 Прослушать описание</button>
-                <span id="ai-status"></span>
+            <div id="ai-controls" style="display: none;">
+                <button id="btn-speak" class="ai-button">🔈 Озвучить (Kani TTS)</button>
+                <span id="loader" class="hidden">⏳ Генерирую голос...</span>
             </div>
         </section>
     </main>
 
-    <audio id="tts-player"></audio>
-
-    <footer>
-        <p>© 2026 Проект о Кыргызстане. Создано с любовью к родине.</p>
-    </footer>
-
+    <audio id="audio-player"></audio>
     <script src="script.js"></script>
 </body>
 </html>
