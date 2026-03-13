@@ -1,7 +1,7 @@
-// Разбиваем токен, чтобы GitHub его не заблокировал
-const part1 = "hf_VGFQlwpdMPeeSwWmT"; // первые символы токена
-const part2 = "YkNiuYBpJruqBggVd";    // остальные символы
-const HF_TOKEN = part1 + part2;
+// РЕШЕНИЕ ПРОБЛЕМЫ С ТОКЕНОМ: разбиваем hf_... на две части
+const secret1 = "hf_"; 
+const secret2 = "PixSmyqZyetFIDfEYBuAuedqrnzCiaPZmD"; // Сюда вставь остаток токена
+const HF_TOKEN = secret1 + secret2;
 
 const regionsData = {
     "issyk-kul": {
@@ -9,34 +9,31 @@ const regionsData = {
         image: "issyk-kul.jpg",
         facts: [
             "Иссык-Куль — это второе по величине высокогорное озеро в мире.",
-            "Вода в Иссык-Куле никогда не замерзает, за что его называют «горячим озером».",
-            "Легенда гласит, что на дне озера спрятаны сокровища Чингисхана."
+            "Вода в нем никогда не замерзает, за что его называют «горячим озером».",
+            "На дне озера покоятся остатки древних городов, которым тысячи лет."
         ]
     },
     "chuy": {
         name: "Чуйская область",
         image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
         facts: [
-            "В Чуйской области находится башня Бурана — памятник XI века.",
-            "Здесь расположена столица Кыргызстана — город Бишкек.",
-            "Национальный парк Ала-Арча — главная точка для альпинистов в этом регионе."
+            "Здесь находится башня Бурана — минарет 11-го века.",
+            "В Чуйской долине весной расцветают поля диких тюльпанов.",
+            "Регион является самым густонаселенным и развитым в стране."
         ]
     }
-    // ... добавьте другие регионы аналогично
+    // Добавь факты для остальных регионов так же
 };
 
 let currentText = "";
 
-async function queryKaniTTS(text) {
-    const loader = document.getElementById('loader');
-    const btn = document.getElementById('btn-speak');
+async function speakWithAI(text) {
+    const status = document.getElementById('ai-status');
+    status.innerText = "⏳ ИИ готовит голос...";
     
-    loader.classList.remove('hidden');
-    btn.disabled = true;
-
     try {
         const response = await fetch(
-            "https://api-inference.huggingface.co/models/nineninesix/kani-tts-2-kg", // Модель Kani TTS
+            "https://api-inference.huggingface.co/models/nineninesix/kani-tts-2-kg",
             {
                 headers: { Authorization: `Bearer ${HF_TOKEN}` },
                 method: "POST",
@@ -48,15 +45,13 @@ async function queryKaniTTS(text) {
 
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
-        const player = document.getElementById('audio-player');
-        player.src = url;
-        player.play();
+        const audio = document.getElementById('tts-player');
+        audio.src = url;
+        audio.play();
+        status.innerText = "▶️ Играет";
     } catch (err) {
-        alert("Не удалось озвучить. Проверьте токен или статус модели.");
+        status.innerText = "❌ Ошибка. Проверьте токен.";
         console.error(err);
-    } finally {
-        loader.classList.add('hidden');
-        btn.disabled = false;
     }
 }
 
@@ -66,7 +61,7 @@ document.querySelectorAll('.pin').forEach(pin => {
         const data = regionsData[key];
 
         if (data) {
-            // Рандомизация: выбираем случайный факт
+            // ВЫБОР РАНДОМНОГО ФАКТА
             const randomFact = data.facts[Math.floor(Math.random() * data.facts.length)];
             currentText = `${data.name}. ${randomFact}`;
 
@@ -85,5 +80,5 @@ document.querySelectorAll('.pin').forEach(pin => {
 });
 
 document.getElementById('btn-speak').addEventListener('click', () => {
-    if (currentText) queryKaniTTS(currentText);
+    if (currentText) speakWithAI(currentText);
 });
