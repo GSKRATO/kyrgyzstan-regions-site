@@ -1,5 +1,3 @@
-// БОЛЬШЕ НИКАКИХ ТОКЕНОВ И ПАРОЛЕЙ! ВЕСЬ КОД ДЛЯ НИХ УДАЛЕН.
-
 // База данных ваших регионов с полным текстом
 const regionsData = {
     "issyk-kul": {
@@ -58,7 +56,7 @@ document.querySelectorAll('.pin').forEach(pin => {
                     
                     <div style="margin-top: 25px; padding: 20px; background: #f0f7ff; border-radius: 12px; border-left: 5px solid #0056b3; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <p id="ai-loading" style="color: #0056b3; font-weight: bold; display: flex; align-items: center;">
-                            <span style="margin-right: 10px; font-size: 1.5em;">✨</span> ИИ генерирует подробный рассказ (3-5 предложений)...
+                            <span style="margin-right: 10px; font-size: 1.5em;">✨</span> ИИ генерирует уникальный рассказ...
                         </p>
                         <p id="ai-text" class="tourist-desc" style="display: none; font-size: 1.1em; line-height: 1.6; color: #2c3e50;"></p>
                         <button id="stop-btn" style="display: none; margin-top: 15px; padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s;">Остановить озвучку</button>
@@ -70,11 +68,14 @@ document.querySelectorAll('.pin').forEach(pin => {
             document.getElementById('region-info').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             try {
-                // Промпт для ИИ с запросом на 3-5 предложений (БЕЗ ТОКЕНОВ)
+                // Промпт для ИИ с запросом на 3-5 предложений
                 const prompt = `Ты профессиональный гид по Кыргызстану. Расскажи интересный, захватывающий и малоизвестный факт или легенду для туристов про ${data.name}. Текст должен состоять ровно из 3-5 предложений. Пиши только на русском языке, без приветствий.`;
                 
-                // Обращение к открытому ИИ Pollinations
-                const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
+                // ОБНОВЛЕНИЕ: Генерируем случайное число, чтобы текст ИИ каждый раз был новым!
+                const randomSeed = Math.floor(Math.random() * 1000000);
+                
+                // Обращение к открытому ИИ Pollinations с добавлением случайного числа
+                const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt) + '?seed=' + randomSeed);
 
                 if (!response.ok) {
                     throw new Error("Проблема с сетью при обращении к ИИ.");
@@ -96,7 +97,19 @@ document.querySelectorAll('.pin').forEach(pin => {
                 stopBtn.onclick = () => window.speechSynthesis.cancel();
 
                 // Запуск озвучки (встроенными голосами устройства)
-                // Улучшенная функция: охота за "живыми" голосами
+                speakText(generatedText);
+
+            } catch (error) {
+                document.getElementById('ai-loading').style.display = "none";
+                document.getElementById('ai-text').style.display = "block";
+                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Не удалось загрузить рассказ от ИИ. Проверьте подключение к интернету.</span>`;
+                console.error("AI Error:", error);
+            }
+        }
+    });
+});
+
+// Улучшенная функция: охота за "живыми" голосами
 function speakText(text) {
     if (!window.speechSynthesis) return;
 
@@ -108,7 +121,7 @@ function speakText(text) {
     let voices = window.speechSynthesis.getVoices();
     let targetVoice = null;
 
-    // Шаг 1: Ищем самые качественные нейронные голоса (обычно есть в Edge)
+    // Шаг 1: Ищем самые качественные нейронные голоса (обычно есть в браузере Edge)
     targetVoice = voices.find(v => v.lang.includes('ru') && (v.name.includes('Natural') || v.name.includes('Online')));
 
     // Шаг 2: Если их нет, ищем хорошие голоса от Google (на смартфонах Android и в Chrome)
@@ -123,44 +136,10 @@ function speakText(text) {
 
     if (targetVoice) {
         utterance.voice = targetVoice;
-        console.log("Выбран улучшенный голос: ", targetVoice.name);
-    }
-    
-    window.speechSynthesis.speak(utterance);
-}
-
-            } catch (error) {
-                document.getElementById('ai-loading').style.display = "none";
-                document.getElementById('ai-text').style.display = "block";
-                document.getElementById('ai-text').innerHTML = `<span style="color:red;">Не удалось загрузить рассказ от ИИ. Проверьте подключение к интернету.</span>`;
-                console.error("AI Error:", error);
-            }
-        }
-    });
-});
-
-// Улучшенная функция озвучки
-function speakText(text) {
-    if (!window.speechSynthesis) return;
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ru-RU'; 
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-
-    // Ищем нормальный русский голос (исключая системную Cortana)
-    let voices = window.speechSynthesis.getVoices();
-    let targetVoice = voices.find(v => v.lang.includes('ru') && !v.name.toLowerCase().includes('cortana'));
-
-    if (targetVoice) {
-        utterance.voice = targetVoice;
     }
     
     window.speechSynthesis.speak(utterance);
 }
 
 // Подгружаем голоса асинхронно
-window.speechSynthesis.onvoiceschanged = () => {
-    window.speechSynthesis.getVoices();
-};
-
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
