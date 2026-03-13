@@ -3,106 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регионы Кыргызстана</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; background-color: #f4f4f9; color: #333; }
-        .region-btn { margin: 10px; padding: 12px 24px; cursor: pointer; background-color: #0056b3; color: white; border: none; border-radius: 5px; font-size: 16px; }
-        .region-btn:hover { background-color: #004494; }
-        #content-box { margin-top: 30px; padding: 20px; border-radius: 8px; background: white; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #loading { display: none; color: #666; font-style: italic; }
-        #stop-btn { display: none; margin-top: 15px; padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    </style>
+    <title>Откройте для себя Кыргызстан</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header>
+        <div class="header-content">
+            <h1>Сердце Центральной Азии — Кыргызстан</h1>
+            <p>Исследуйте уникальные регионы нашей страны, их природу и культуру.</p>
+        </div>
+    </header>
 
-    <h1>Карта Кыргызстана: Выберите регион</h1>
-    
-    <button class="region-btn" onclick="generateAndSpeak('Ошская область')">Ошская область</button>
-    <button class="region-btn" onclick="generateAndSpeak('Нарынская область')">Нарынская область</button>
-    <button class="region-btn" onclick="generateAndSpeak('Баткенская область')">Баткенская область</button>
-    <button class="region-btn" onclick="generateAndSpeak('Иссык-Кульская область')">Иссык-Кульская</button>
-
-    <div id="content-box">
-        <div id="image-container"></div>
-        
-        <p id="loading">Генерация уникального описания нейросетью...</p>
-        <div id="text-container">Здесь появится текст про регион.</div>
-        
-        <button id="stop-btn" onclick="stopSpeech()">Остановить озвучку</button>
-    </div>
-
-    <script>
-        // 1. РЕШЕНИЕ ПРОБЛЕМЫ С ТОКЕНОМ:
-        // Вставьте сюда ваш токен от Hugging Face (он должен начинаться с hf_...)
-        const HUGGING_FACE_TOKEN = "ВАШ_ТОКЕН_HUGGING_FACE_ЗДЕСЬ";
-
-        async function generateAndSpeak(regionName) {
-            const textContainer = document.getElementById('text-container');
-            const loadingText = document.getElementById('loading');
-            const stopBtn = document.getElementById('stop-btn');
-            const imageContainer = document.getElementById('image-container');
-
-            // Подготовка интерфейса перед загрузкой
-            textContainer.innerHTML = "";
-            loadingText.style.display = "block";
-            stopBtn.style.display = "none";
+    <main>
+        <section class="map-section">
+            <h2>Интерактивная карта</h2>
+            <p>Нажмите на красную точку на карте, чтобы узнать о регионе больше.</p>
             
-            // Логика установки старой картинки (картина перед текстом)
-            imageContainer.innerHTML = `<img src="ссылка_на_вашу_старую_картину.jpg" alt="${regionName}" style="max-width: 100%; border-radius: 8px; margin-bottom: 15px;">`;
+            <div class="map-wrapper" style="background-color: #e2e8f0; border-radius: 8px;">
+                <img src="map.png" alt="Карта Кыргызстана" class="kg-map-image">
+                
+                <div class="pin" style="top: 22%; left: 55%;" data-region="chuy"><span>Чуй</span></div>
+                <div class="pin" style="top: 32%; left: 82%;" data-region="issyk-kul"><span>Иссык-Куль</span></div>
+                <div class="pin" style="top: 28%; left: 32%;" data-region="talas"><span>Талас</span></div>
+                <div class="pin" style="top: 52%; left: 62%;" data-region="naryn"><span>Нарын</span></div>
+                <div class="pin" style="top: 45%; left: 35%;" data-region="jalal-abad"><span>Джалал-Абад</span></div>
+                <div class="pin" style="top: 68%; left: 30%;" data-region="osh"><span>Ош</span></div>
+                <div class="pin" style="top: 78%; left: 16%;" data-region="batken"><span>Баткен</span></div>
+            </div>
+        </section>
 
-            // Останавливаем любую предыдущую озвучку
-            window.speechSynthesis.cancel();
+        <section class="info-section" id="region-info">
+            <h2>Информация о регионе</h2>
+            <div id="info-content">
+                <p>Выберите область на карте выше, чтобы увидеть фотографии и описание.</p>
+            </div>
+        </section>
+    </main>
 
-            try {
-                // 2. ГЕНЕРАЦИЯ ТЕКСТА
-                // Отправляем запрос к бесплатной модели Hugging Face
-                const response = await fetch("https://api-inference.huggingface.co/models/IlyaGusev/saiga_mistral_7b", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${HUGGING_FACE_TOKEN}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        inputs: `Расскажи один интересный абзац для туристов про ${regionName} в Кыргызстане.`,
-                        parameters: { max_new_tokens: 150, temperature: 0.8 } // temperature: 0.8 делает текст разным каждый раз
-                    })
-                });
+    <footer>
+        <p>© 2026 Проект о Кыргызстане. Создано с любовью к родине.</p>
+    </footer>
 
-                if (!response.ok) throw new Error("Проверьте правильность токена Hugging Face.");
-
-                const data = await response.json();
-                let generatedText = data[0].generated_text || "Текст не сгенерирован.";
-
-                // Убираем сам промпт из ответа, если модель его вернула
-                generatedText = generatedText.split(regionName + " в Кыргызстане.")[1] || generatedText;
-
-                // Отображаем текст
-                loadingText.style.display = "none";
-                textContainer.innerHTML = `<p>${generatedText.trim()}</p>`;
-                stopBtn.style.display = "inline-block";
-
-                // 3. ОЗВУЧКА ИИ ГОЛОСОМ (Замена любых сторонних TTS)
-                speakText(generatedText.trim());
-
-            } catch (error) {
-                loadingText.style.display = "none";
-                textContainer.innerHTML = `<p style="color:red;">Ошибка: ${error.message}</p>`;
-            }
-        }
-
-        function speakText(text) {
-            // Используем встроенный в браузер синтезатор речи
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ru-RU'; // Русский язык
-            utterance.rate = 1.0;     // Нормальная скорость
-            utterance.pitch = 1.0;    // Нормальная тональность
-            
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function stopSpeech() {
-            window.speechSynthesis.cancel(); // Кнопка для остановки чтения
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
